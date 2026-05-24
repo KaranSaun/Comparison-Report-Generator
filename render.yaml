@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: comparison-report-generator
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && cd frontend && npm install && npm run build && cd .."
+    startCommand: "python api.py"
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"

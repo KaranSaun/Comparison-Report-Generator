@@ -18,6 +18,7 @@ GET   /api/health              Health check
 
 import asyncio
 import json
+import os
 import shutil
 import tempfile
 import uuid
@@ -433,4 +434,5 @@ if _frontend_dist.exists():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("api:app", host="0.0.0.0", port=port, reload=False)
