@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.env
+venv/
+.venv/
+
+# Reconciliation logs & temp outputs
+reconciliation.log
+Comparison_Report.xlsx
+/tmp/
+/var/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test Excel files (do not commit real warehouse data)
+*.xlsx
+*.xls
