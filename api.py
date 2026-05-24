@@ -17,6 +17,7 @@ GET   /api/health              Health check
 """
 
 import asyncio
+import io as _io
 import json
 import os
 import shutil
@@ -29,6 +30,7 @@ from typing import Dict, Optional
 
 import pandas as pd
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from openpyxl import load_workbook as _load_wb
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -119,9 +121,18 @@ async def _handle_upload(file: UploadFile, file_type: str) -> dict:
     dest.write_bytes(content)
 
     try:
-        df = pd.read_excel(str(dest), dtype=str, keep_default_na=False, engine="openpyxl")
-        rows = len(df)
-        columns = [c.strip() for c in df.columns.tolist()]
+        # Fast metadata extraction — read_only mode reads only the XML dimension
+        # tag + first row. No full file parse (saves 30-120s on low-CPU hosts).
+        wb = _load_wb(filename=_io.BytesIO(content), read_only=True, data_only=True)
+        ws = wb.active
+        first_row = next(ws.rows, [])
+        columns = [
+            str(c.value).strip() if c.value is not None else f"Col_{i+1}"
+            for i, c in enumerate(first_row)
+        ]
+        row_count = max((ws.max_row or 1) - 1, 0)
+        wb.close()
+        rows = row_count
     except Exception as exc:
         shutil.rmtree(upload_dir, ignore_errors=True)
         raise HTTPException(400, f"Cannot read Excel file: {exc}")
